@@ -1,0 +1,483 @@
+{
+  "version": 1,
+  "reference": {
+    "title": "Outcome School — AI and Machine Learning Program",
+    "url": "https://outcomeschool.com/program/ai-and-machine-learning",
+    "retrievedAt": "2026-11-07",
+    "note": "Used as the technical scope reference. This platform keeps its PM and enterprise lens and adds system design, MLOps, and build labs where the reference is strongest."
+  },
+  "stages": [
+    {
+      "id": "foundations",
+      "title": "Stage 0 · Foundations",
+      "summary": "The mental model and the numbers you need before the LLM-specific tracks make sense.",
+      "sections": [
+        {
+          "id": "ml-essentials",
+          "title": "Machine Learning Essentials",
+          "status": "planned",
+          "priority": "P0",
+          "prereqs": [],
+          "covers": [
+            "Machine Learning Overview",
+            "Supervised and Unsupervised Learning",
+            "Self-supervised Learning",
+            "Linear and Logistic Regression",
+            "Gradient Descent",
+            "Loss Functions",
+            "Epoch, Batch, Batch Size",
+            "Embeddings",
+            "Logits, Cross-Entropy"
+          ],
+          "outcomes": [
+            "Explain how a model learns from data without writing the rules",
+            "Read a training curve and tell overfitting from underfitting",
+            "Translate loss, epoch, and batch size into product trade-offs"
+          ]
+        },
+        {
+          "id": "numbers-every-ai-pm-should-know",
+          "title": "Numbers Every AI PM Should Know",
+          "status": "planned",
+          "priority": "P0",
+          "prereqs": ["ml-essentials"],
+          "covers": [
+            "Numbers Every AI Engineer Should Know",
+            "LLM Inference Performance Metrics",
+            "Token economics",
+            "GPU memory and throughput"
+          ],
+          "outcomes": [
+            "Estimate latency, throughput, and cost for a feature before building it",
+            "Sanity-check vendor claims about tokens, context, and price",
+            "Size a GPU or budget from a workload instead of a guess"
+          ]
+        },
+        {
+          "id": "track-1-tokens-context-windows-temperature-stateless-apis",
+          "title": "Tokens, Context Windows, Temperature, Stateless APIs",
+          "status": "live",
+          "priority": "Start at L3",
+          "prereqs": ["ml-essentials"],
+          "covers": ["Tokenization", "LLM Fundamentals", "Context windows"]
+        }
+      ]
+    },
+    {
+      "id": "llm-core",
+      "title": "Stage 1 · How LLMs actually work",
+      "summary": "From tokens to attention and inference. Enough internals to challenge a vendor and design a spec.",
+      "sections": [
+        {
+          "id": "llm-internals-inference",
+          "title": "LLM Internals & Inference",
+          "status": "planned",
+          "priority": "P0",
+          "prereqs": ["track-1-tokens-context-windows-temperature-stateless-apis"],
+          "covers": [
+            "LLM Internals",
+            "Positional Encodings",
+            "Q, K, V Matrices",
+            "Attention Mechanism",
+            "Self-Attention and Multi-Head Attention",
+            "Causal Masked Attention",
+            "Transformer Architecture",
+            "KV Cache",
+            "Paged Attention",
+            "Speculative Decoding",
+            "Continuous Batching",
+            "Prompt Caching",
+            "Mixture of Experts",
+            "Grouped Query Attention",
+            "vLLM"
+          ],
+          "outcomes": [
+            "Explain why prefill and decode have different cost profiles",
+            "Predict which optimizations cut latency vs which cut cost",
+            "Ask a vendor the right question about batching and caching"
+          ]
+        },
+        {
+          "id": "track-4-prompting-ai-spec-writing",
+          "title": "Prompting & AI Spec Writing",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-1-tokens-context-windows-temperature-stateless-apis"],
+          "covers": ["Prompt Engineering", "Prompt Chaining", "Chain of Thought"]
+        },
+        {
+          "id": "track-2-context-engineering",
+          "title": "Context Engineering",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-4-prompting-ai-spec-writing"],
+          "covers": ["Context Engineering"]
+        }
+      ]
+    },
+    {
+      "id": "knowledge-memory",
+      "title": "Stage 2 · Knowledge, retrieval, and memory",
+      "summary": "How to get the right context in front of the model: RAG, advanced retrieval, and memory.",
+      "sections": [
+        {
+          "id": "track-5-retrieval-rag",
+          "title": "Retrieval & RAG",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-2-context-engineering"],
+          "covers": ["RAG", "Vector Databases", "Embeddings"]
+        },
+        {
+          "id": "track-12-rag-pipeline-engineering-end-to-end",
+          "title": "RAG Pipeline Engineering — End-to-end",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-5-retrieval-rag"],
+          "covers": ["RAG", "Data Management and Versioning"]
+        },
+        {
+          "id": "track-16-retrieval-systems-beyond-basic-rag",
+          "title": "Retrieval Systems — Beyond Basic RAG",
+          "status": "live",
+          "priority": "Advanced",
+          "prereqs": ["track-12-rag-pipeline-engineering-end-to-end"],
+          "covers": ["Vector Databases", "RAG", "Evaluation and Testing"]
+        },
+        {
+          "id": "track-3-memory-systems",
+          "title": "Memory Systems",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-12-rag-pipeline-engineering-end-to-end"],
+          "covers": ["Memory in Agents", "Design Memory for a Personal AI Assistant"]
+        }
+      ]
+    },
+    {
+      "id": "agents",
+      "title": "Stage 3 · Agents, tools, and harnesses",
+      "summary": "Loops, tools, MCP, orchestration, harnesses, and the coding-agent layer.",
+      "sections": [
+        {
+          "id": "track-7-agent-loops",
+          "title": "Agent Loops",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-2-context-engineering"],
+          "covers": ["ReAct Pattern", "AI Agent", "Agentic AI"]
+        },
+        {
+          "id": "track-8-skills-vs-tools-vs-mcp-connectors",
+          "title": "Skills vs Tools vs MCP Connectors",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-7-agent-loops"],
+          "covers": ["Tool use in Agents", "Model Context Protocol (MCP)"]
+        },
+        {
+          "id": "track-13-agent-building-orchestration",
+          "title": "Agent Building & Orchestration",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-8-skills-vs-tools-vs-mcp-connectors"],
+          "covers": ["Subagent", "Multi-Agent Systems", "Orchestration and Routing"]
+        },
+        {
+          "id": "track-14-harness-engineering",
+          "title": "Harness Engineering",
+          "status": "live",
+          "priority": "Advanced",
+          "prereqs": ["track-13-agent-building-orchestration"],
+          "covers": ["Harness Engineering"]
+        },
+        {
+          "id": "loop-and-graph-engineering",
+          "title": "Loop & Graph Engineering",
+          "status": "planned",
+          "priority": "P1",
+          "prereqs": ["track-14-harness-engineering"],
+          "covers": [
+            "Using Claude Code and Codex Effectively",
+            "Loop Engineering",
+            "Graph Engineering",
+            "AI Coding Agent"
+          ],
+          "outcomes": [
+            "Design a coding-agent loop with explicit stop conditions",
+            "Decide when a graph beats a loop for reliability",
+            "Measure a coding agent on task completion, not vibes"
+          ]
+        },
+        {
+          "id": "multimodal-voice-agents",
+          "title": "Multimodal & Voice Agents",
+          "status": "planned",
+          "priority": "P1",
+          "prereqs": ["track-7-agent-loops"],
+          "covers": [
+            "Multimodal AI",
+            "Multimodal Generative Models",
+            "Design a Real-Time Voice AI Agent"
+          ],
+          "outcomes": [
+            "Specify latency budgets for speech-to-speech pipelines",
+            "Choose between native multimodal models and stitched pipelines",
+            "Identify failure modes in interruption and turn-taking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "quality-safety-cost",
+      "title": "Stage 4 · Quality, safety, and cost",
+      "summary": "Evals, security, injection defense, token economics, and the operational layer.",
+      "sections": [
+        {
+          "id": "track-6-evals",
+          "title": "Evals",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-2-context-engineering"],
+          "covers": ["Evaluation of LLMs and Agents", "LLM as a Judge", "Evaluation and Testing"]
+        },
+        {
+          "id": "track-10-security-owasp-llm-top-10-2026",
+          "title": "Security — OWASP LLM Top 10 (2026)",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-1-tokens-context-windows-temperature-stateless-apis"],
+          "covers": ["AI Security"]
+        },
+        {
+          "id": "track-11-injection-deep-dive-attack-taxonomy-defense",
+          "title": "Injection Deep Dive — Attack Taxonomy & Defense",
+          "status": "live",
+          "priority": "Advanced",
+          "prereqs": ["track-10-security-owasp-llm-top-10-2026"],
+          "covers": ["Prompt Injection", "AI Security"]
+        },
+        {
+          "id": "track-9-token-economics",
+          "title": "Token Economics",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-1-tokens-context-windows-temperature-stateless-apis"],
+          "covers": ["Token economics", "LLM Inference Performance Metrics"]
+        },
+        {
+          "id": "mlops-llmops",
+          "title": "MLOps & LLMOps for PMs",
+          "status": "planned",
+          "priority": "P1",
+          "prereqs": ["track-6-evals", "track-9-token-economics"],
+          "covers": [
+            "LLM Inference Engineering",
+            "LLM Inference Bottleneck Analysis",
+            "Data Management and Versioning",
+            "Model Development and Training",
+            "Model Deployment and Serving",
+            "Cloud vs On-device Deployment",
+            "Monitoring and Logging",
+            "Infrastructure and Platform"
+          ],
+          "outcomes": [
+            "Write a rollout plan with monitoring, rollback, and data versioning",
+            "Separate model quality incidents from infrastructure incidents",
+            "Choose cloud vs on-device with a cost and privacy argument"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "training-adaptation",
+      "title": "Stage 5 · Training and adaptation",
+      "summary": "Fine-tuning, compression, and preference training. When to adapt a model instead of prompting it.",
+      "sections": [
+        {
+          "id": "fine-tuning-peft-lora",
+          "title": "Fine-tuning, PEFT & LoRA",
+          "status": "planned",
+          "priority": "P0",
+          "prereqs": ["llm-internals-inference", "track-6-evals"],
+          "covers": [
+            "Fine-tuning",
+            "Parameter-Efficient Fine-Tuning (PEFT)",
+            "Low-Rank Adaptation (LoRA), QLoRA"
+          ],
+          "outcomes": [
+            "Decide between prompting, RAG, and fine-tuning with a costed argument",
+            "Estimate the data and eval work a fine-tune really needs",
+            "Explain what LoRA adapts and why it is cheaper"
+          ]
+        },
+        {
+          "id": "quantization-distillation-slm",
+          "title": "Quantization, Distillation & Small Models",
+          "status": "planned",
+          "priority": "P0",
+          "prereqs": ["llm-internals-inference"],
+          "covers": [
+            "Quantization and Optimizations",
+            "Model Compression",
+            "Knowledge Distillation",
+            "SLMs and Model Distillation",
+            "Distilling the Knowledge in a Neural Network"
+          ],
+          "outcomes": [
+            "Predict the quality, latency, and memory effect of quantization",
+            "Decide when a small model plus a teacher beats a large model",
+            "Specify an accuracy budget for an edge deployment"
+          ]
+        },
+        {
+          "id": "rlhf-dpo-reasoning-models",
+          "title": "RLHF, DPO & Reasoning Models",
+          "status": "planned",
+          "priority": "P1",
+          "prereqs": ["fine-tuning-peft-lora"],
+          "covers": [
+            "Exploration vs Exploitation",
+            "Proximal Policy Optimization (PPO)",
+            "Reward Models",
+            "Direct Preference Optimization (DPO)",
+            "Group Relative Policy Optimization (GRPO)",
+            "RLHF",
+            "Reasoning Models"
+          ],
+          "outcomes": [
+            "Explain how preference data changes model behaviour",
+            "Tell RLHF, DPO, and GRPO apart in product terms",
+            "Set expectations for reasoning models on latency and cost"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "infrastructure-system-design",
+      "title": "Stage 6 · Infrastructure and system design",
+      "summary": "GPUs, serving, and the system-design interview layer: design ChatGPT, RAG, memory, research, and voice.",
+      "sections": [
+        {
+          "id": "track-15-gpu-ai-infrastructure-for-pms",
+          "title": "GPU & AI Infrastructure for PMs",
+          "status": "live",
+          "priority": "Core",
+          "prereqs": ["track-1-tokens-context-windows-temperature-stateless-apis"],
+          "covers": ["Infrastructure and Platform", "Cloud vs On-device Deployment"]
+        },
+        {
+          "id": "ai-system-design",
+          "title": "AI System Design for PMs",
+          "status": "planned",
+          "priority": "P0",
+          "prereqs": ["track-12-rag-pipeline-engineering-end-to-end", "track-13-agent-building-orchestration"],
+          "covers": [
+            "Design ChatGPT: Training to Serving",
+            "Design a RAG System",
+            "Design Memory for a Personal AI Assistant",
+            "Design a Deep Research Agent",
+            "Design a Real-Time Voice AI Agent",
+            "Design an LLM Inference Platform (vLLM-as-a-Service)"
+          ],
+          "outcomes": [
+            "Draw the components, data flow, and failure modes of an AI system",
+            "Defend a build-vs-buy and batch-vs-stream decision",
+            "Estimate cost and latency for each design choice"
+          ]
+        },
+        {
+          "id": "build-your-own-labs",
+          "title": "Build-Your-Own Labs",
+          "status": "planned",
+          "priority": "P1",
+          "prereqs": ["llm-internals-inference", "track-12-rag-pipeline-engineering-end-to-end"],
+          "covers": [
+            "Build Your Own LLM",
+            "Build Your Own ChatGPT",
+            "Build Your Own AI Tutor",
+            "Build Your Own AI Coding Agent",
+            "Memory for a Personal AI Assistant",
+            "Build Your Own Neural Network"
+          ],
+          "outcomes": [
+            "Ship a small end-to-end AI feature and explain every component",
+            "Read the source of a reference implementation without getting lost",
+            "Turn a demo into a spec with evals, guardrails, and cost limits"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "enterprise-providers",
+      "title": "Stage 7 · Enterprise, providers, and research",
+      "summary": "Vendor deep dives, enterprise data strategy, and the papers behind the products.",
+      "sections": [
+        {
+          "id": "track-17-anthropic-computer-use-enterprise-cloud",
+          "title": "Anthropic Computer Use & Enterprise Cloud",
+          "status": "live",
+          "priority": "Vendor",
+          "prereqs": ["track-13-agent-building-orchestration"],
+          "covers": ["AI Agent", "Multimodal AI"]
+        },
+        {
+          "id": "track-18-perplexity-sonar-real-time-enterprise-search",
+          "title": "Perplexity Sonar & Real-time Enterprise Search",
+          "status": "live",
+          "priority": "Vendor",
+          "prereqs": ["track-16-retrieval-systems-beyond-basic-rag"],
+          "covers": ["RAG", "Vector Databases"]
+        },
+        {
+          "id": "track-19-enterprise-data-moats-glean-kroolo",
+          "title": "Enterprise Data Moats (Glean & Kroolo)",
+          "status": "live",
+          "priority": "Vendor",
+          "prereqs": ["track-16-retrieval-systems-beyond-basic-rag"],
+          "covers": ["Data Management and Versioning", "RAG"]
+        },
+        {
+          "id": "module-a-anthropic-deep-dive",
+          "title": "Anthropic Deep Dive",
+          "status": "live",
+          "priority": "Vendor",
+          "prereqs": ["track-13-agent-building-orchestration"],
+          "covers": ["AI Engineering Overview"]
+        },
+        {
+          "id": "module-b-openai-deep-dive",
+          "title": "OpenAI Deep Dive",
+          "status": "live",
+          "priority": "Vendor",
+          "prereqs": ["track-13-agent-building-orchestration"],
+          "covers": ["AI Engineering Overview"]
+        },
+        {
+          "id": "module-c-free-tools-lab",
+          "title": "Free Tools Lab",
+          "status": "live",
+          "priority": "Hands-on",
+          "prereqs": ["track-4-prompting-ai-spec-writing"],
+          "covers": ["Tools and Libraries", "Ollama", "Hugging Face", "LangChain", "LangGraph"]
+        },
+        {
+          "id": "research-papers-club",
+          "title": "Research Papers Club",
+          "status": "planned",
+          "priority": "P2",
+          "prereqs": ["llm-internals-inference"],
+          "covers": [
+            "Attention Is All You Need",
+            "Distilling the Knowledge in a Neural Network"
+          ],
+          "outcomes": [
+            "Read a foundational paper and extract the design decisions",
+            "Map each paper idea to a product capability and a cost",
+            "Explain the paper to a non-technical stakeholder in five minutes"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -238,6 +238,28 @@ main {
   padding-top: 0.9rem;
 }
 
+.card.is-planned {
+  background: color-mix(in srgb, var(--surface-2) 55%, var(--surface));
+  border-style: dashed;
+}
+
+.stage-head {
+  margin-bottom: 1rem;
+  max-width: 70ch;
+}
+
+.stage-head h2 {
+  margin-bottom: 0.25rem;
+}
+
+.path-strip .row {
+  gap: 0.5rem;
+}
+
+.path-strip a.badge {
+  text-decoration: none;
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;

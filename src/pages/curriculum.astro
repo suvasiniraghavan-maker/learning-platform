@@ -1,0 +1,140 @@
+---
+import Base from "../layouts/Base.astro";
+import plan from "../../content/curriculum-plan.json";
+import {
+  kb,
+  sectionPath,
+  quizPath,
+  levelRange,
+} from "../lib/kb";
+import type { Section } from "../lib/kb";
+
+const liveSections = new Map(kb.sections.map((section) => [section.id, section]));
+
+const stages = plan.stages.map((stage) => ({
+  ...stage,
+  sections: stage.sections.map((entry) => {
+    const live =
+      entry.status === "live" ? liveSections.get(entry.id) : undefined;
+    if (entry.status === "live" && !live) {
+      throw new Error(
+        `curriculum-plan.json references missing section "${entry.id}"`,
+      );
+    }
+    return { ...entry, live: live as Section | undefined };
+  }),
+}));
+
+const allEntries = stages.flatMap((stage) => stage.sections);
+const liveCount = allEntries.filter((entry) => entry.status === "live").length;
+const plannedCount = allEntries.length - liveCount;
+const plannedP0 = allEntries.filter(
+  (entry) => entry.status === "planned" && entry.priority === "P0",
+).length;
+
+const quizCount = (section: Section) =>
+  section.items.filter((item) => item.kind === "mcq").length;
+---
+
+<Base
+  title="Curriculum"
+  description="The full learning path: 22 live sections, staged from foundations to enterprise vendors, plus the planned technical additions."
+>
+  <section class="page-head">
+    <p class="eyebrow">Curriculum design</p>
+    <h1>Learning path</h1>
+    <p class="lead">
+      The same 22 sections, ordered by dependency and grouped into eight stages.
+      The planned tracks close the technical gaps against the Outcome School AI
+      &amp; ML Program — internals, training, MLOps, and system design.
+    </p>
+    <div class="meta-row">
+      <span>{liveCount} live sections</span>
+      <span>{plannedCount} planned</span>
+      <span>{plannedP0} priority additions</span>
+      <span>PM and enterprise lens</span>
+    </div>
+  </section>
+
+  {
+    stages.map((stage) => (
+      <section class="stage" id={stage.id} style="margin-top:2.5rem">
+        <div class="stage-head">
+          <h2>{stage.title}</h2>
+          <p class="muted">{stage.summary}</p>
+        </div>
+        <div class="card-grid">
+          {stage.sections.map((entry) =>
+            entry.live ? (
+              <article class="card">
+                <p class="eyebrow" style="margin-bottom:.1rem">
+                  Live · {entry.live.track !== null
+                    ? `Track ${entry.live.track}`
+                    : `Module ${entry.live.module ?? ""}`}
+                </p>
+                <h3>{entry.title}</h3>
+                <p>{entry.live.description}</p>
+                <div class="row" style="margin-top:.35rem">
+                  <span class="badge">{quizCount(entry.live)} quiz</span>
+                  <span class="badge">{levelRange(entry.live.items)}</span>
+                  {entry.live.priority && (
+                    <span class="badge">{entry.live.priority}</span>
+                  )}
+                </div>
+                <div class="card-actions">
+                  <a class="btn btn-primary" href={sectionPath(entry.live.id)}>
+                    Study
+                  </a>
+                  {quizCount(entry.live) > 0 && (
+                    <a class="btn" href={quizPath(entry.live.id)}>
+                      Quiz me
+                    </a>
+                  )}
+                </div>
+              </article>
+            ) : (
+              <article class="card is-planned">
+                <p class="eyebrow" style="margin-bottom:.1rem">
+                  Planned · {entry.priority}
+                </p>
+                <h3>{entry.title}</h3>
+                <p>{entry.outcomes?.[0]}</p>
+                {entry.covers && entry.covers.length > 0 && (
+                  <div class="row" style="margin-top:.35rem">
+                    {entry.covers.slice(0, 3).map((topic) => (
+                      <span class="badge">{topic}</span>
+                    ))}
+                    {entry.covers.length > 3 && (
+                      <span class="badge">+{entry.covers.length - 3} topics</span>
+                    )}
+                  </div>
+                )}
+                <p class="muted" style="margin-top:.5rem;font-size:.85rem">
+                  No items yet — seeded through the content agent.
+                </p>
+              </article>
+            ),
+          )}
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="stack" style="margin-top:3rem;max-width:72ch">
+    <h2>Why this order</h2>
+    <p class="muted">
+      Stages 0–2 build the model-to-context chain: how learning works, how LLMs
+      are served, and how to put the right knowledge in front of them. Stage 3
+      turns that into agents. Stage 4 is the quality and cost layer that keeps
+      them safe. Stage 5 covers adapting models instead of prompting them, and
+      Stage 6 is the system-design layer. Stage 7 keeps the vendor and
+      enterprise material where it belongs — applied, after the fundamentals.
+    </p>
+    <p class="muted">
+      Mapping is maintained in <code>content/curriculum-plan.json</code>. The
+      rationale and gap analysis are in
+      <code>docs/CURRICULUM-DESIGN.md</code>. A planned section is not a dead
+      link: it appears here only after its items are written and reviewed.
+    </p>
+  </section>
+</Base>

@@ -13,9 +13,17 @@ import {
   levelRange,
 } from "../lib/kb";
 import type { Section } from "../lib/kb";
+import plan from "../../content/curriculum-plan.json";
 
 const quizCount = (section: Section) =>
   section.items.filter((item) => item.kind === "mcq").length;
+
+const stageSummary = plan.stages.map((stage) => ({
+  id: stage.id,
+  title: stage.title,
+  live: stage.sections.filter((entry) => entry.status === "live").length,
+  planned: stage.sections.filter((entry) => entry.status === "planned").length,
+}));
 ---
 
 <Base>
@@ -30,6 +38,24 @@ const quizCount = (section: Section) =>
       <span>{totalQuizItems} quiz questions</span>
       {totalLabs > 0 && <span>{totalLabs} hands-on labs</span>}
       <span>Progress saved in your browser</span>
+    </div>
+  </section>
+
+  <section class="path-strip" style="margin-bottom:2rem">
+    <h2>Learning path</h2>
+    <p class="muted" style="margin-bottom:.75rem">
+      Eight stages, ordered by dependency — from how models learn to vendor deep
+      dives. <a href="/curriculum/">See the full curriculum map</a>.
+    </p>
+    <div class="row" style="flex-wrap:wrap;gap:.5rem">
+      {
+        stageSummary.map((stage) => (
+          <a class="badge" href={`/curriculum/#${stage.id}`}>
+            {stage.title} · {stage.live} live
+            {stage.planned > 0 ? ` · ${stage.planned} planned` : ""}
+          </a>
+        ))
+      }
     </div>
   </section>
 
