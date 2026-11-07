@@ -1,0 +1,30 @@
+{
+  "name": "learning-platform",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static learning platform built from a JSON knowledge base, with Gemini Notebook source bundles.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "validate": "node scripts/validate.mjs",
+    "build": "astro build",
+    "postbuild": "pagefind --site dist",
+    "preview": "astro preview",
+    "notebooks": "node scripts/build-notebooks.mjs",
+    "sync-notebooks": "node scripts/sync-notebooks.mjs",
+    "check": "npm run validate && npm run build"
+  },
+  "dependencies": {
+    "@astrojs/react": "^7.1.4",
+    "astro": "^7.4.7",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "pagefind": "^1.6.0",
+    "typescript": "^6.0.3"
+  }
+}

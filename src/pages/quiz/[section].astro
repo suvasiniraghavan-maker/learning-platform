@@ -1,0 +1,28 @@
+---
+import Base from "../../layouts/Base.astro";
+import Quiz from "../../components/Quiz";
+import { sections, sectionPath } from "../../lib/kb";
+
+export function getStaticPaths() {
+  return sections.map((section) => ({
+    params: { section: section.id },
+    props: { section },
+  }));
+}
+
+const { section } = Astro.props;
+---
+
+<Base title={`Quiz: ${section.title}`} description={`Quiz yourself on ${section.title}`}>
+  <nav class="meta-row" aria-label="Breadcrumb">
+    <a href="/">Sections</a>
+    <span aria-hidden="true">/</span>
+    <a href={sectionPath(section.id)}>{section.title}</a>
+    <span aria-hidden="true">/</span>
+    <span>Quiz</span>
+  </nav>
+
+  <section class="quiz-shell" style="margin-top:1.25rem">
+    <Quiz client:load sectionId={section.id} sectionTitle={section.title} items={section.items} />
+  </section>
+</Base>

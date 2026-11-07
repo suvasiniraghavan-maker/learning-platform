@@ -1,0 +1,204 @@
+{
+  "version": 1,
+  "title": "Learning Science — Sample Knowledge Base",
+  "description": "Replace this sample with your own content. The schema and UI stay the same.",
+  "sections": [
+    {
+      "id": "encoding-and-memory",
+      "title": "Encoding & Memory",
+      "description": "How information gets into memory, and why the way you study changes what sticks.",
+      "items": [
+        {
+          "id": "testing-effect",
+          "question": "What is the testing effect, and why does it improve retention?",
+          "answer": "Retrieving information from memory strengthens it more than re-reading it. A quiz you struggle through produces better long-term retention than the same time spent reviewing notes.",
+          "reasoning": "Retrieval is not a neutral read-out of memory. Each successful recall re-encodes the memory and strengthens the retrieval route to it. Failed recall followed by feedback is also productive, because it marks the gap and forces a correction. Re-reading, by contrast, mostly creates a feeling of familiarity without exercising retrieval, which is why it can feel effective while producing weak retention.",
+          "tags": ["retrieval", "testing", "study-strategy"],
+          "difficulty": 2,
+          "references": [
+            {
+              "title": "Testing effect — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Testing_effect"
+            },
+            {
+              "title": "Dunlosky et al., Improving Students' Learning (2013)",
+              "url": "https://doi.org/10.1177/1529100612453266"
+            }
+          ]
+        },
+        {
+          "id": "elaborative-encoding",
+          "question": "What is elaborative encoding, and how do you do it?",
+          "answer": "Elaborative encoding means connecting new information to what you already know: explaining it in your own words, generating examples, and linking it to related ideas.",
+          "reasoning": "Memory is associative. A fact stored with many connections has more retrieval routes and is easier to reconstruct. Elaboration forces you to process meaning rather than surface features, which is the difference between shallow and deep processing. Practical forms include self-explanation, analogies, concrete examples, and asking 'why is this true?' and 'what would change if it were false?'",
+          "tags": ["encoding", "elaboration", "deep-processing"],
+          "difficulty": 2,
+          "references": [
+            {
+              "title": "Levels-of-processing effect — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Levels-of-processing_effect"
+            }
+          ]
+        },
+        {
+          "id": "generation-effect",
+          "question": "What is the generation effect?",
+          "answer": "Information you generate yourself is remembered better than information you simply read. Trying to produce an answer before being shown it improves later recall.",
+          "reasoning": "Generating an answer requires retrieval and reconstruction, which are the same processes that strengthen memory. Even an incorrect attempt can help, provided corrective feedback follows, because the attempt activates related knowledge and makes the eventual correction more distinctive. This is why 'guess before you look' is a useful study habit.",
+          "tags": ["encoding", "generation", "retrieval"],
+          "difficulty": 2,
+          "references": [
+            {
+              "title": "Generation effect — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Generation_effect"
+            }
+          ]
+        },
+        {
+          "id": "interleaving",
+          "question": "Why does interleaving feel harder but produce better learning than blocked practice?",
+          "answer": "Interleaving mixes different problem types or topics in one session. It feels harder because you must first decide which strategy applies, but that discrimination practice is exactly what transfers to real problems.",
+          "reasoning": "Blocked practice lets you repeat one procedure without choosing it, so performance during practice is high but fragile. Interleaving adds retrieval and discrimination demands: you have to identify the category of problem before solving it. That is 'desirable difficulty' — it lowers practice performance while improving transfer and long-term retention.",
+          "tags": ["interleaving", "desirable-difficulty", "transfer"],
+          "difficulty": 3,
+          "references": [
+            {
+              "title": "Interleaved practice — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Interleaved_practice"
+            },
+            {
+              "title": "Desirable difficulty — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Desirable_difficulty"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "spaced-practice",
+      "title": "Spaced Practice",
+      "description": "Why distributing study over time beats cramming, and how to schedule reviews.",
+      "items": [
+        {
+          "id": "spacing-effect",
+          "question": "What is the spacing effect?",
+          "answer": "Information studied across multiple separated sessions is retained better than the same total time studied in one block.",
+          "reasoning": "Each review after a partial forgetting re-encodes the material and makes the memory more robust. The gap forces effortful retrieval, and effortful retrieval is what strengthens memory. Massed practice keeps material active in working memory, so recall feels easy and the memory is not challenged.",
+          "tags": ["spacing", "scheduling"],
+          "difficulty": 1,
+          "references": [
+            {
+              "title": "Spacing effect — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Spacing_effect"
+            }
+          ]
+        },
+        {
+          "id": "forgetting-curve",
+          "question": "How does the forgetting curve inform review timing?",
+          "answer": "Retention drops steeply at first and then flattens. Reviewing just before you would forget interrupts the steep part of the curve and flattens it for longer each time.",
+          "reasoning": "Ebbinghaus's curve is roughly exponential. If you review too early, the material is still fresh and the review adds little. If you wait too long, you may need to relearn it. Spaced-repetition systems approximate the ideal moment by estimating when recall probability falls to a target threshold, then expanding the interval after each success.",
+          "tags": ["spacing", "forgetting-curve", "review"],
+          "difficulty": 2,
+          "references": [
+            {
+              "title": "Forgetting curve — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Forgetting_curve"
+            }
+          ]
+        },
+        {
+          "id": "desirable-difficulty",
+          "question": "What makes a difficulty 'desirable'?",
+          "answer": "A difficulty is desirable when it slows practice performance but improves long-term retention or transfer, and when the learner can still succeed with reasonable effort.",
+          "reasoning": "The concept is about a trade-off: conditions that make practice feel smooth often reduce learning, while conditions that add productive struggle improve it. The difficulty must be resolvable — if the learner cannot succeed even with feedback, it becomes discouraging rather than desirable. Spacing, interleaving, retrieval, and varied practice are canonical examples.",
+          "tags": ["desirable-difficulty", "spacing", "interleaving"],
+          "difficulty": 3,
+          "references": [
+            {
+              "title": "Desirable difficulty — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Desirable_difficulty"
+            }
+          ]
+        },
+        {
+          "id": "cramming",
+          "question": "Why is cramming ineffective for long-term retention?",
+          "answer": "Cramming concentrates practice into a short window, so it produces familiarity and short-term performance without the spaced retrieval that builds durable memory.",
+          "reasoning": "Massed study keeps the material continuously available, which prevents the effortful recall that strengthens memory. It can work for an exam hours away, but the forgetting curve resumes steeply afterwards. The same total study time distributed across days produces substantially better retention for the same effort.",
+          "tags": ["spacing", "cramming", "study-strategy"],
+          "difficulty": 1,
+          "references": [
+            {
+              "title": "Spacing effect — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Spacing_effect"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "retrieval-and-feedback",
+      "title": "Retrieval & Feedback",
+      "description": "How to practise recall and use errors productively.",
+      "items": [
+        {
+          "id": "effective-retrieval",
+          "question": "What makes retrieval practice effective?",
+          "answer": "It must require effortful recall from memory, be followed by feedback, and be repeated at spaced intervals.",
+          "reasoning": "Recognition and re-reading are too easy to drive much learning. Effective retrieval closes the book, produces an answer from memory, then checks it. Feedback corrects errors before they consolidate. Spacing ensures the next retrieval is again effortful rather than trivial.",
+          "tags": ["retrieval", "feedback", "spacing"],
+          "difficulty": 2,
+          "references": [
+            {
+              "title": "Testing effect — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Testing_effect"
+            }
+          ]
+        },
+        {
+          "id": "feedback-types",
+          "question": "What is the difference between feedback on the answer and feedback on the process?",
+          "answer": "Answer feedback tells you whether you were right. Process feedback explains why and how to improve the reasoning that produced the answer.",
+          "reasoning": "Answer feedback is enough to correct a simple fact, but for complex skills the learner may be right for the wrong reason or wrong in a way that repeats. Process feedback targets the strategy, so it supports transfer to new problems. The best feedback is specific, timely enough to be usable, and focused on the next actionable step.",
+          "tags": ["feedback", "process", "transfer"],
+          "difficulty": 3,
+          "references": [
+            {
+              "title": "Feedback — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Feedback"
+            }
+          ]
+        },
+        {
+          "id": "feedback-timing",
+          "question": "When can delayed feedback be more useful than immediate feedback?",
+          "answer": "Delayed feedback can be better when it gives the learner time to retrieve, notice the gap, and process the correction, especially for complex material.",
+          "reasoning": "Immediate feedback can short-circuit retrieval: the answer arrives before the learner has committed to an attempt. A short delay preserves the retrieval attempt and makes the correction more salient. For simple factual learning, immediate feedback is often fine; for durable learning, the key is that feedback follows an honest attempt.",
+          "tags": ["feedback", "timing", "retrieval"],
+          "difficulty": 3,
+          "references": [
+            {
+              "title": "Feedback — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Feedback"
+            }
+          ]
+        },
+        {
+          "id": "error-correction",
+          "question": "How should you handle an error after a wrong answer?",
+          "answer": "Mark it, correct it with a clear explanation, and schedule the item to come back soon — then retrieve the correct answer again rather than merely re-reading it.",
+          "reasoning": "An error is useful information about a missing or misrouted retrieval path. Simply seeing the right answer creates recognition, not recall. Re-attempting the item after feedback, and spacing that re-attempt, tests whether the correction actually took. Repeated errors on the same item suggest the underlying concept, not just the fact, needs re-encoding.",
+          "tags": ["errors", "feedback", "spacing"],
+          "difficulty": 2,
+          "references": [
+            {
+              "title": "Testing effect — Wikipedia",
+              "url": "https://en.wikipedia.org/wiki/Testing_effect"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

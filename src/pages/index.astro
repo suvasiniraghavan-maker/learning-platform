@@ -1,0 +1,59 @@
+---
+import Base from "../layouts/Base.astro";
+import { kb, sections, totalItems, sectionPath, quizPath } from "../lib/kb";
+
+const difficultyRange = (items: { difficulty: number }[]) => {
+  const values = items.map((item) => item.difficulty);
+  return `${Math.min(...values)}–${Math.max(...values)}`;
+};
+---
+
+<Base>
+  <section class="page-head">
+    <p class="eyebrow">Knowledge base</p>
+    <h1>{kb.title}</h1>
+    <p class="lead">{kb.description}</p>
+    <div class="meta-row">
+      <span>{sections.length} sections</span>
+      <span>{totalItems} questions</span>
+      <span>Progress saved in your browser</span>
+    </div>
+  </section>
+
+  <div class="card-grid">
+    {
+      sections.map((section) => (
+        <article class="card">
+          <h2>{section.title}</h2>
+          <p>{section.description}</p>
+          <div class="row" style="margin-top:.35rem">
+            <span class="badge">{section.items.length} questions</span>
+            <span class="badge">Difficulty {difficultyRange(section.items)}</span>
+          </div>
+          <div class="card-actions">
+            <a class="btn btn-primary" href={sectionPath(section.id)}>
+              Study
+            </a>
+            <a class="btn" href={quizPath(section.id)}>
+              Quiz me
+            </a>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <section class="stack" style="margin-top:3rem;max-width:70ch">
+    <h2>How it works</h2>
+    <p class="muted">
+      Every section is generated from <code>content/kb.json</code>. Study mode
+      shows the question first so you can retrieve the answer before revealing
+      it. Quiz mode schedules cards with a simple spaced-repetition algorithm
+      and keeps your progress locally.
+    </p>
+    <p class="muted">
+      Each section can also be exported as a Markdown bundle for a Gemini
+      Notebook. Run <code>npm run notebooks</code> to generate them.
+    </p>
+  </section>
+</Base>

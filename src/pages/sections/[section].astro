@@ -1,0 +1,87 @@
+---
+import Base from "../../layouts/Base.astro";
+import { sections, quizPath } from "../../lib/kb";
+
+export function getStaticPaths() {
+  return sections.map((section) => ({
+    params: { section: section.id },
+    props: { section },
+  }));
+}
+
+const { section } = Astro.props;
+const difficulty = (value: number) =>
+  Array.from({ length: 5 }, (_, index) => index < value);
+---
+
+<Base
+  title={section.title}
+  description={section.description || `${section.title} study questions`}
+>
+  <nav class="meta-row" aria-label="Breadcrumb">
+    <a href="/">Sections</a>
+    <span aria-hidden="true">/</span>
+    <span>{section.title}</span>
+  </nav>
+
+  <section class="page-head" style="margin-top:1rem">
+    <p class="eyebrow">Section</p>
+    <h1>{section.title}</h1>
+    {section.description && <p class="lead">{section.description}</p>}
+    <div class="row" style="margin-top:1.1rem">
+      <a class="btn btn-primary" href={quizPath(section.id)}>Start quiz</a>
+      <span class="badge">{section.items.length} questions</span>
+      <a class="btn btn-ghost btn-sm" href="/search/">Search all sections</a>
+    </div>
+  </section>
+
+  <div class="question-list">
+    {
+      section.items.map((item, index) => (
+        <article class="question" id={item.id}>
+          <div class="question-head">
+            <span class="question-index" aria-hidden="true">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <h3>{item.question}</h3>
+          </div>
+
+          <div class="question-meta">
+            <span class="difficulty" aria-label={`Difficulty ${item.difficulty} of 5`}>
+              {difficulty(item.difficulty).map((on) => (
+                <span class:list={["dot", on && "on"]} />
+              ))}
+            </span>
+            {item.tags.map((tag) => (
+              <span class="tag">{tag}</span>
+            ))}
+          </div>
+
+          <details class="answer">
+            <summary>Show answer and reasoning</summary>
+            <div class="answer-body">
+              <h4>Answer</h4>
+              <p>{item.answer}</p>
+              <h4>Reasoning</h4>
+              <p>{item.reasoning}</p>
+              {item.references.length > 0 && (
+                <>
+                  <h4>Further reading</h4>
+                  <ul class="refs">
+                    {item.references.map((reference) => (
+                      <li>
+                        <a href={reference.url} rel="noreferrer noopener" target="_blank">
+                          {reference.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          </details>
+        </article>
+      ))
+    }
+  </div>
+</Base>

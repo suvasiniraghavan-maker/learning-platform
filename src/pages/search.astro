@@ -1,0 +1,48 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Search" description="Search every question, answer, and reasoning note.">
+  <section class="page-head">
+    <p class="eyebrow">Find anything</p>
+    <h1>Search</h1>
+    <p class="lead">
+      Full-text search across every question, answer, and reasoning note. The
+      index is generated at build time by Pagefind.
+    </p>
+  </section>
+
+  <div id="search"></div>
+
+  <p id="search-fallback" class="empty-state" hidden>
+    The search index isn’t available in development. Run
+    <code>npm run build</code> and open the built site (or the deployed site) to
+    search.
+  </p>
+
+  <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+  <script src="/pagefind/pagefind-ui.js" is:inline></script>
+  <script is:inline>
+    (function () {
+      function init() {
+        if (window.PagefindUI) {
+          new window.PagefindUI({
+            element: "#search",
+            showSubResults: true,
+            showImages: false,
+            resetStyles: false,
+          });
+        } else {
+          var fallback = document.getElementById("search-fallback");
+          if (fallback) fallback.hidden = false;
+        }
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</Base>

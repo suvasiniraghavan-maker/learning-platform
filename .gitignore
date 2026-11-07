@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+dist-notebooks/
+
+# environment / secrets
+.env
+.env.*
+!.env.example
+client_secret.json
+token.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
