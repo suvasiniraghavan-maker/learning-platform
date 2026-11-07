@@ -24,6 +24,19 @@ const stageSummary = plan.stages.map((stage) => ({
   live: stage.sections.filter((entry) => entry.status === "live").length,
   planned: stage.sections.filter((entry) => entry.status === "planned").length,
 }));
+
+const tickerTopics = [
+  "tokens",
+  "context",
+  "memory",
+  "retrieval",
+  "agents",
+  "tools",
+  "evals",
+  "security",
+  "economics",
+  "infrastructure",
+];
 ---
 
 <Base>
@@ -31,7 +44,7 @@ const stageSummary = plan.stages.map((stage) => ({
     <p class="eyebrow">Knowledge base</p>
     <h1>{kb.title}</h1>
     <p class="lead">{kb.description}</p>
-    <div class="meta-row">
+    <div class="meta-row" data-pagefind-ignore>
       <span>{tracks.length} tracks</span>
       <span>{modules.length} modules</span>
       <span>{totalItems} items</span>
@@ -41,13 +54,21 @@ const stageSummary = plan.stages.map((stage) => ({
     </div>
   </section>
 
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      {[...tickerTopics, ...tickerTopics].map((topic) => (
+        <span>{topic} ✦</span>
+      ))}
+    </div>
+  </div>
+
   <section class="path-strip" style="margin-bottom:2rem">
     <h2>Learning path</h2>
     <p class="muted" style="margin-bottom:.75rem">
       Eight stages, ordered by dependency — from how models learn to vendor deep
       dives. <a href="/curriculum/">See the full curriculum map</a>.
     </p>
-    <div class="row" style="flex-wrap:wrap;gap:.5rem">
+    <div class="row" style="flex-wrap:wrap;gap:.5rem" data-pagefind-ignore>
       {
         stageSummary.map((stage) => (
           <a class="badge" href={`/curriculum/#${stage.id}`}>
@@ -75,14 +96,14 @@ const stageSummary = plan.stages.map((stage) => ({
               </p>
               <h2>{section.title}</h2>
               <p>{section.description}</p>
-              <div class="row" style="margin-top:.35rem">
+              <div class="row" style="margin-top:.35rem" data-pagefind-ignore>
                 <span class="badge">{quiz} quiz</span>
                 <span class="badge">{levelRange(section.items)}</span>
                 {section.priority && (
                   <span class="badge">{section.priority}</span>
                 )}
               </div>
-              <div class="card-actions">
+              <div class="card-actions" data-pagefind-ignore>
                 <a class="btn btn-primary" href={sectionPath(section.id)}>
                   Study
                 </a>
@@ -113,14 +134,14 @@ const stageSummary = plan.stages.map((stage) => ({
               </p>
               <h2>{section.title}</h2>
               <p>{section.description}</p>
-              <div class="row" style="margin-top:.35rem">
+              <div class="row" style="margin-top:.35rem" data-pagefind-ignore>
                 <span class="badge">{quiz} quiz</span>
                 <span class="badge">{levelRange(section.items)}</span>
                 {section.priority && (
                   <span class="badge">{section.priority}</span>
                 )}
               </div>
-              <div class="card-actions">
+              <div class="card-actions" data-pagefind-ignore>
                 <a class="btn btn-primary" href={sectionPath(section.id)}>
                   Study
                 </a>

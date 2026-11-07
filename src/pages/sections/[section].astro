@@ -45,7 +45,7 @@ const visibleTags = (item: Item): string[] => {
   title={section.title}
   description={section.description || `${section.title} study questions`}
 >
-  <nav class="meta-row" aria-label="Breadcrumb">
+  <nav class="meta-row" aria-label="Breadcrumb" data-pagefind-ignore>
     <a href="/">Sections</a>
     <span aria-hidden="true">/</span>
     <span>{section.title}</span>
@@ -55,7 +55,7 @@ const visibleTags = (item: Item): string[] => {
     <p class="eyebrow">{sectionLabel(section)}</p>
     <h1>{section.title}</h1>
     {section.description && <p class="lead">{section.description}</p>}
-    <div class="row" style="margin-top:1.1rem">
+    <div class="row" style="margin-top:1.1rem" data-pagefind-ignore>
       {quizCount > 0 && (
         <a class="btn btn-primary" href={quizPath(section.id)}>
           Start quiz ({quizCount})
@@ -83,7 +83,7 @@ const visibleTags = (item: Item): string[] => {
             <h3>{item.question}</h3>
           </div>
 
-          <div class="question-meta">
+          <div class="question-meta" data-pagefind-ignore>
             <span class="badge">
               {item.kind === "lab" ? "Hands-on lab" : item.levelName || `Level ${item.level}`}
             </span>

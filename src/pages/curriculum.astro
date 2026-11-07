@@ -48,7 +48,7 @@ const quizCount = (section: Section) =>
       The planned tracks close the technical gaps against the Outcome School AI
       &amp; ML Program — internals, training, MLOps, and system design.
     </p>
-    <div class="meta-row">
+    <div class="meta-row" data-pagefind-ignore>
       <span>{liveCount} live sections</span>
       <span>{plannedCount} planned</span>
       <span>{plannedP0} priority additions</span>
@@ -74,14 +74,14 @@ const quizCount = (section: Section) =>
                 </p>
                 <h3>{entry.title}</h3>
                 <p>{entry.live.description}</p>
-                <div class="row" style="margin-top:.35rem">
+                <div class="row" style="margin-top:.35rem" data-pagefind-ignore>
                   <span class="badge">{quizCount(entry.live)} quiz</span>
                   <span class="badge">{levelRange(entry.live.items)}</span>
                   {entry.live.priority && (
                     <span class="badge">{entry.live.priority}</span>
                   )}
                 </div>
-                <div class="card-actions">
+                <div class="card-actions" data-pagefind-ignore>
                   <a class="btn btn-primary" href={sectionPath(entry.live.id)}>
                     Study
                   </a>
@@ -100,7 +100,7 @@ const quizCount = (section: Section) =>
                 <h3>{entry.title}</h3>
                 <p>{entry.outcomes?.[0]}</p>
                 {entry.covers && entry.covers.length > 0 && (
-                  <div class="row" style="margin-top:.35rem">
+                  <div class="row" style="margin-top:.35rem" data-pagefind-ignore>
                     {entry.covers.slice(0, 3).map((topic) => (
                       <span class="badge">{topic}</span>
                     ))}

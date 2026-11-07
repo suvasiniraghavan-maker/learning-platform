@@ -19,7 +19,7 @@ const labCount = section.items.length - questions.length;
   title={`Quiz: ${section.title}`}
   description={`Quiz yourself on ${section.title}`}
 >
-  <nav class="meta-row" aria-label="Breadcrumb">
+  <nav class="meta-row" aria-label="Breadcrumb" data-pagefind-ignore>
     <a href="/">Sections</a>
     <span aria-hidden="true">/</span>
     <a href={sectionPath(section.id)}>{section.title}</a>

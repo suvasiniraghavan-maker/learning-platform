@@ -21,37 +21,47 @@ const pageTitle = title ? `${title} · Learning Platform` : "Learning Platform";
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <title>{pageTitle}</title>
     <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
 
-    <header class="site-header">
-      <div class="container header-inner">
-        <a class="brand" href="/">
-          <span class="brand-mark" aria-hidden="true">◆</span>
-          <span>Learning Platform</span>
-        </a>
-        <nav class="nav" aria-label="Main">
-          <a href="/">Sections</a>
-          <a href="/curriculum/">Curriculum</a>
-          <a href="/search/">Search</a>
-        </nav>
-      </div>
-    </header>
+    <div class="page-frame">
+      <div class="rainbow-bar" aria-hidden="true"></div>
 
-    <main id="main" class="container" data-pagefind-body>
-      <slot />
-    </main>
+      <header class="site-header">
+        <div class="container header-inner">
+          <a class="brand" href="/">
+            <span class="brand-mark" aria-hidden="true">Su</span>
+            <span>Learning Platform</span>
+          </a>
+          <nav class="nav" aria-label="Main">
+            <a href="/">Sections</a>
+            <a href="/curriculum/">Curriculum</a>
+            <a href="/search/">Search</a>
+          </nav>
+        </div>
+      </header>
 
-    <footer class="site-footer">
-      <div class="container">
-        <p>
-          Built from <code>content/kb.json</code> · progress is stored in your
-          browser
-        </p>
-      </div>
-    </footer>
+      <main id="main" class="container" data-pagefind-body>
+        <slot />
+      </main>
+
+      <footer class="site-footer">
+        <div class="container">
+          <p>
+            Built from <code>content/kb.json</code> · progress is stored in your
+            browser
+          </p>
+        </div>
+      </footer>
+    </div>
   </body>
 </html>
