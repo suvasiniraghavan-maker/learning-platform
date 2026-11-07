@@ -145,11 +145,13 @@ await rm(outDir, { recursive: true, force: true });
 await mkdir(outDir, { recursive: true });
 
 const notebooks = [];
+const rendered = [];
 
 for (const section of kb.sections) {
   const content = renderSection(section);
   const file = `${section.id}.md`;
   await writeFile(resolve(outDir, file), content, "utf8");
+  rendered.push({ section, content });
 
   const quiz = section.items.filter((item) => item.kind === "mcq").length;
   const labs = section.items.length - quiz;
@@ -177,6 +179,9 @@ const index = [
   "One notebook per section. Upload the matching Markdown file as a source,",
   "or sync them with the Gemini Notebook API.",
   "",
+  "For a single master notebook, upload `complete-curriculum.md` (one source",
+  "containing every section) instead of the per-section files.",
+  "",
   ...notebooks.map(
     (entry) =>
       `- **${entry.label}: ${entry.title}** — \`${entry.file}\` (${entry.questions} quiz, ${entry.labs} lab, ${entry.resources} resources)`,
@@ -185,6 +190,20 @@ const index = [
 ].join("\n");
 
 await writeFile(resolve(outDir, "index.md"), index, "utf8");
+
+// Single-file source for a "whole curriculum" notebook: one upload instead of 22.
+const complete = [
+  `# ${kb.title}`,
+  "",
+  `Complete curriculum — ${kb.sections.length} sections. Upload this single file`,
+  "as one source when you want a master notebook covering everything.",
+  "",
+  ...rendered.flatMap(({ content }) => ["", "---", "", content]),
+  "",
+].join("\n");
+
+await writeFile(resolve(outDir, "complete-curriculum.md"), complete, "utf8");
+const completeSize = Buffer.byteLength(complete, "utf8");
 
 await writeFile(
   manifestPath,
@@ -200,7 +219,53 @@ await writeFile(
   "utf8",
 );
 
+const uploadSheet = [
+  "# Gemini Notebook upload sheet",
+  "",
+  `Bundles: ${notebooks.length}. Each per-section .md is a self-contained source (~14-26 KB).`,
+  "",
+  "## Option A — one master notebook (fastest)",
+  "",
+  "1. Sign in at https://notebook.google.com",
+  `2. Create notebook: **${kb.title}**`,
+  "3. Add source -> Upload files -> `complete-curriculum.md` (one file, all sections).",
+  "4. Wait for processing, then ask cross-track questions.",
+  "",
+  "To keep the sections as separate sources instead, upload all",
+  `${notebooks.length} per-section .md files in one go (still under the 50-source free limit).`,
+  "",
+  "## Option B — one notebook per section",
+  "",
+  "For each row: Create notebook -> name it `<label> — <title>` -> Add source -> Upload the file.",
+  "",
+  "| # | Notebook name | File | Items | Resources |",
+  "|---|---|---|---|---|",
+  ...notebooks.map(
+    (entry, i) =>
+      `| ${i + 1} | ${entry.label} — ${entry.title} | \`${entry.file}\` | ${entry.questions} quiz / ${entry.labs} lab | ${entry.resources} |`,
+  ),
+  "",
+  "## Suggested first prompt (any notebook)",
+  "",
+  "- Summarise this section as a one-page study guide for a product manager.",
+  "- Generate 10 exam-style questions from these concepts, with answers.",
+  "- Explain the three hardest ideas here to a beginner, using analogies.",
+  "- Create a mind map connecting the tags in this section.",
+  "- Make an audio overview focused on the reasoning, not just the answers.",
+  "",
+  "## Free plan limits (2026)",
+  "",
+  "- 100 notebooks, 50 sources per notebook, 500,000 words per source.",
+  "- ~50 chat queries/day, 3 audio overviews/day.",
+  "",
+].join("\n");
+
+await writeFile(resolve(outDir, "UPLOAD.md"), uploadSheet, "utf8");
+
 console.log(`✔ Notebook bundles written to ${outDir}`);
+console.log(
+  `  - complete-curriculum.md  (${kb.sections.length} sections, ${(completeSize / 1024).toFixed(0)} KB) — one-file master source`,
+);
 for (const entry of notebooks) {
   console.log(
     `  - ${entry.file}  (${entry.questions} quiz, ${entry.labs} lab, ${entry.resources} resources)`,
