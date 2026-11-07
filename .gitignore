@@ -6,6 +6,9 @@ dist/
 .astro/
 dist-notebooks/
 
+# extracted chat export (regenerate with scripts/extract-export.mjs)
+exports/
+
 # environment / secrets
 .env
 .env.*

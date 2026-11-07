@@ -39,35 +39,89 @@ try {
   // First run, or no manifest yet.
 }
 
+function sectionLabel(section) {
+  return section.track !== null
+    ? `Track ${section.track}`
+    : `Module ${section.module ?? ""}`.trim();
+}
+
+function renderChoices(item) {
+  const lines = ["**Options.**", ""];
+  for (const choice of item.choices) {
+    const marker = choice.correct ? "✅" : "❌";
+    lines.push(`- ${marker} **${choice.id})** ${choice.text}`);
+    if (choice.explanation) lines.push(`  - ${choice.explanation}`);
+  }
+  lines.push("");
+  return lines;
+}
+
+function renderResources(item) {
+  if (item.resources.length === 0) return [];
+
+  const lines = ["**Learn this concept.**", ""];
+  for (const resource of item.resources) {
+    const type = resource.type ? ` — ${resource.type}` : "";
+    if (resource.url) {
+      lines.push(`- [${resource.title}](${resource.url})${type}`);
+    } else if (resource.search) {
+      lines.push(`- ${resource.title}${type} (search: "${resource.search}")`);
+    } else {
+      lines.push(`- ${resource.title}${type}`);
+    }
+  }
+  lines.push("");
+  return lines;
+}
+
 function renderSection(section) {
   const lines = [];
 
   lines.push(`# ${section.title}`, "");
+  lines.push(`*${sectionLabel(section)} · ${section.items.length} item(s)*`, "");
   if (section.description) lines.push(section.description, "");
+  if (section.priority) lines.push(`**Priority:** ${section.priority}`, "");
   lines.push(
     "> Study material generated from a knowledge base. Each entry has a question,",
-    "> the answer, and the reasoning behind it. Use the questions for retrieval",
-    "> practice: try to answer before reading the reasoning.",
+    "> the options, the answer, the principle, the PM implication, and further",
+    "> reading. Use the questions for retrieval practice: try to answer before",
+    "> reading the explanation.",
     "",
     "## Questions and reasoning",
     "",
   );
 
   section.items.forEach((item, index) => {
+    const kind = item.kind === "lab" ? "Hands-on lab" : item.levelName || `Level ${item.level}`;
     lines.push(`### ${index + 1}. ${item.question}`, "");
-    lines.push(`**Answer.** ${item.answer}`, "");
-    lines.push(`**Reasoning.** ${item.reasoning}`, "");
+    lines.push(`*${kind}*`, "");
 
-    if (item.tags.length > 0) {
-      lines.push(`Tags: ${item.tags.join(", ")}`, "");
+    if (item.kind === "lab") {
+      if (item.labInstructions) {
+        lines.push("**Lab instructions.**", "", "```", item.labInstructions, "```", "");
+      }
+    } else {
+      lines.push(...renderChoices(item));
+      lines.push(`**Answer.** ${item.answer}`, "");
+      if (item.reasoning) lines.push(`**Why.** ${item.reasoning}`, "");
     }
 
-    if (item.references.length > 0) {
-      lines.push("Further reading:", "");
-      for (const reference of item.references) {
-        lines.push(`- [${reference.title}](${reference.url})`);
-      }
-      lines.push("");
+    if (item.principle) lines.push(`**Principle.** ${item.principle}`, "");
+    if (item.pmImplication) {
+      lines.push(`**PM implication.** ${item.pmImplication}`, "");
+    }
+
+    lines.push(...renderResources(item));
+
+    if (item.geminiPrompt) {
+      lines.push(
+        "**Gemini Notebook prompt.**",
+        "",
+        "```",
+        item.geminiPrompt,
+        "```",
+        "",
+      );
     }
 
     lines.push("---", "");
@@ -76,7 +130,7 @@ function renderSection(section) {
   lines.push(
     "## Suggested notebook prompts",
     "",
-    "- Summarise this section as a one-page study guide.",
+    "- Summarise this section as a one-page study guide for a product manager.",
     "- Generate 10 exam-style questions from these concepts, with answers.",
     "- Explain the three hardest ideas here to a beginner, using analogies.",
     "- Create a mind map connecting the tags in this section.",
@@ -97,16 +151,22 @@ for (const section of kb.sections) {
   const file = `${section.id}.md`;
   await writeFile(resolve(outDir, file), content, "utf8");
 
+  const quiz = section.items.filter((item) => item.kind === "mcq").length;
+  const labs = section.items.length - quiz;
+
   notebooks.push({
     sectionId: section.id,
     title: section.title,
+    label: sectionLabel(section),
     file,
     contentHash: createHash("sha256").update(content).digest("hex"),
-    questions: section.items.length,
-    references: section.items.reduce(
-      (sum, item) => sum + item.references.length,
+    questions: quiz,
+    labs,
+    resources: section.items.reduce(
+      (sum, item) => sum + item.resources.length,
       0,
     ),
+    prompts: section.items.filter((item) => item.geminiPrompt).length,
     notebook: previous[section.id] ?? { id: null, url: null },
   });
 }
@@ -119,7 +179,7 @@ const index = [
   "",
   ...notebooks.map(
     (entry) =>
-      `- **${entry.title}** — \`${entry.file}\` (${entry.questions} questions, ${entry.references} references)`,
+      `- **${entry.label}: ${entry.title}** — \`${entry.file}\` (${entry.questions} quiz, ${entry.labs} lab, ${entry.resources} resources)`,
   ),
   "",
 ].join("\n");
@@ -143,6 +203,6 @@ await writeFile(
 console.log(`✔ Notebook bundles written to ${outDir}`);
 for (const entry of notebooks) {
   console.log(
-    `  - ${entry.file}  (${entry.questions} questions, ${entry.references} references)`,
+    `  - ${entry.file}  (${entry.questions} quiz, ${entry.labs} lab, ${entry.resources} resources)`,
   );
 }

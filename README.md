@@ -39,22 +39,28 @@ npm run check        # validate + build
 ## Project structure
 
 ```
-content/kb.json            ← the only content file you need to edit
+content/kb.json            ← generated content (the only content file the site reads)
+exports/                   ← extracted Markdown from the original chat export (gitignored)
 src/lib/schema.js          ← validation contract (shared by build + CLI)
 src/lib/kb.ts              ← typed access to the knowledge base
-src/pages/index.astro      ← section list
+src/pages/index.astro      ← tracks + modules list
 src/pages/sections/[section].astro
 src/pages/quiz/[section].astro
-src/components/Quiz.tsx    ← spaced-repetition quiz (localStorage)
+src/components/Quiz.tsx    ← auto-graded MCQ + spaced repetition (localStorage)
 src/pages/search.astro     ← Pagefind UI
 scripts/validate.mjs       ← readable validation errors
+scripts/import-chat-export.mjs ← chat export → content/kb.json
 scripts/build-notebooks.mjs
+scripts/sync-notebooks.mjs
 dist-notebooks/            ← generated notebook bundles (gitignored)
 ```
 
 ## Editing the knowledge base
 
-`content/kb.json` shape:
+`content/kb.json` currently holds the full curriculum: **19 tracks + modules
+A–C, 152 items (145 multiple-choice questions + 7 hands-on labs)**.
+
+Shape:
 
 ```jsonc
 {
@@ -63,18 +69,48 @@ dist-notebooks/            ← generated notebook bundles (gitignored)
   "description": "Optional",
   "sections": [
     {
-      "id": "lowercase-kebab-case",
-      "title": "Section title",
+      "id": "track-1-tokens-context-windows",
+      "title": "Tokens, Context Windows, Temperature",
       "description": "Optional",
+      "track": 1,                 // null for modules
+      "module": null,             // "A", "B", "C" for modules
+      "priority": "BUILD FIRST",
+      "focus": "Optional",
       "items": [
         {
-          "id": "unique-item-id",
+          "id": "q1-1",
+          "kind": "mcq",          // "mcq" | "lab"
           "question": "…",
-          "answer": "…",
-          "reasoning": "…",
-          "tags": ["optional"],
+          "answer": "B) …",
+          "reasoning": "Why the correct option is right.",
+          "level": 3,             // 1–5, null for labs
+          "levelName": "Trade-off",
+          "principle": "One-sentence rule to remember.",
+          "pmImplication": "What to put in the PRD.",
+          "labInstructions": "",  // only for kind: "lab"
+          "tags": ["level-3", "trade-off"],
           "difficulty": 3,
-          "references": [{ "title": "…", "url": "https://…" }]
+          "choices": [
+            {
+              "id": "A",
+              "text": "…",
+              "correct": false,
+              "explanation": "Why this option is wrong."
+            }
+          ],
+          "resources": [
+            {
+              "title": "Anthropic: Prompt Caching",
+              "type": "Official",
+              "url": "https://…"
+            },
+            {
+              "title": "Gen Academy: Caching",
+              "type": "Video Style",
+              "search": "gen academy prompt caching"
+            }
+          ],
+          "geminiPrompt": "Optional reflection prompt for Gemini Notebook."
         }
       ]
     }
@@ -86,23 +122,43 @@ Rules enforced by `npm run validate`:
 
 - `version` must be `1`.
 - Section and item `id`s must be lowercase kebab-case and globally unique.
-- Every item needs a non-empty `question`, `answer`, and `reasoning`.
-- `difficulty` is an integer from 1 to 5 (default 3).
-- `references[].url` must be a valid URL.
-- Optional `choices` + `correctIndex` support will be added for multiple choice.
+- Every item needs a non-empty `question`.
+- `kind: "mcq"` items need at least two `choices` and **exactly one** with
+  `correct: true`.
+- `kind: "lab"` items need `labInstructions`.
+- `level` is an integer from 1 to 5 (or `null` for labs); `difficulty` is 1–5.
+- `resources[].url` must be a valid URL. Resources with only a `search` string
+  are linked to a Google search at render time.
 
-Replace the sample content with your own JSON. The UI, quiz, search, and
-notebook bundles all follow automatically.
+### Regenerating content from the chat export
 
-## How the quiz schedules cards
+The original chat export was extracted to `exports/` and parsed with:
 
+```bash
+node scripts/import-chat-export.mjs      # writes content/kb.json
+npm run validate
+```
+
+The parser reads the canonical assistant documents (`msg-05`, `msg-07`,
+`msg-09`), handles both table-based and list-based option formats, extracts
+principles, PM implications, resources, Gemini prompts, and the seven labs in
+Module C. The `exports/` folder is gitignored; keep the original chat export
+JSON somewhere safe if you want to re-run the pipeline.
+
+## How the quiz works
+
+- The quiz filters out `kind: "lab"` items; labs live on the study page.
+- Pick an option to grade it immediately. The feedback panel shows why every
+  option is right or wrong, the principle, the PM implication, resources, and
+  the Gemini Notebook prompt.
 - Due cards come first, then unseen cards, both shuffled.
 - Rating a card updates a local SM-2-style schedule:
   - **Again** → 1 day, ease decreases.
   - **Good** → 1 day, then 3 days, then grows by the ease factor.
   - **Easy** → 2 days, then grows faster.
 - Progress is stored in `localStorage` under `lp.progress.v1`.
-- Keys: `Space` reveals, `1` / `2` / `3` rate.
+- Keys: `A`–`E` select an option, `Space` reveals without answering, `1` / `2`
+  / `3` rate after answering.
 
 ## Deploy to Cloudflare Pages (free)
 
@@ -136,7 +192,9 @@ dist-notebooks/
 ```
 
 Each `<section-id>.md` contains the section description, every question with its
-answer and reasoning, the tags, and curated further reading.
+options (correct options marked), answer, reasoning, principle, PM implication,
+tags, further reading, and the per-item Gemini Notebook prompt. Labs include
+their full instructions.
 
 ### Option A — manual (works today)
 
@@ -212,7 +270,9 @@ content hash, and skips notebooks whose content has not changed. It retries
 
 ## Roadmap
 
-- [ ] Multiple-choice question support (`choices` / `correctIndex`).
+- [x] Multiple-choice question support (`choices` with per-option feedback).
+- [x] Hands-on lab items (`kind: "lab"`).
+- [x] Notebook bundles from the rich content.
+- [x] Notebook sync script with OAuth + content-hash idempotency.
 - [ ] Per-section progress summary on the home page.
-- [ ] Notebook sync script with OAuth + content-hash idempotency.
 - [ ] Optional accounts (Supabase free tier) for cross-device progress.

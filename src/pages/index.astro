@@ -1,11 +1,21 @@
 ---
 import Base from "../layouts/Base.astro";
-import { kb, sections, totalItems, sectionPath, quizPath } from "../lib/kb";
+import {
+  kb,
+  tracks,
+  modules,
+  totalItems,
+  totalQuizItems,
+  totalLabs,
+  sectionPath,
+  quizPath,
+  sectionLabel,
+  levelRange,
+} from "../lib/kb";
+import type { Section } from "../lib/kb";
 
-const difficultyRange = (items: { difficulty: number }[]) => {
-  const values = items.map((item) => item.difficulty);
-  return `${Math.min(...values)}–${Math.max(...values)}`;
-};
+const quizCount = (section: Section) =>
+  section.items.filter((item) => item.kind === "mcq").length;
 ---
 
 <Base>
@@ -14,42 +24,105 @@ const difficultyRange = (items: { difficulty: number }[]) => {
     <h1>{kb.title}</h1>
     <p class="lead">{kb.description}</p>
     <div class="meta-row">
-      <span>{sections.length} sections</span>
-      <span>{totalItems} questions</span>
+      <span>{tracks.length} tracks</span>
+      <span>{modules.length} modules</span>
+      <span>{totalItems} items</span>
+      <span>{totalQuizItems} quiz questions</span>
+      {totalLabs > 0 && <span>{totalLabs} hands-on labs</span>}
       <span>Progress saved in your browser</span>
     </div>
   </section>
 
-  <div class="card-grid">
-    {
-      sections.map((section) => (
-        <article class="card">
-          <h2>{section.title}</h2>
-          <p>{section.description}</p>
-          <div class="row" style="margin-top:.35rem">
-            <span class="badge">{section.items.length} questions</span>
-            <span class="badge">Difficulty {difficultyRange(section.items)}</span>
-          </div>
-          <div class="card-actions">
-            <a class="btn btn-primary" href={sectionPath(section.id)}>
-              Study
-            </a>
-            <a class="btn" href={quizPath(section.id)}>
-              Quiz me
-            </a>
-          </div>
-        </article>
-      ))
-    }
-  </div>
+  <section>
+    <h2>Tracks</h2>
+    <p class="muted" style="margin-bottom:1rem">
+      The core curriculum, from token mechanics to enterprise data moats.
+    </p>
+    <div class="card-grid">
+      {
+        tracks.map((section) => {
+          const quiz = quizCount(section);
+          return (
+            <article class="card">
+              <p class="eyebrow" style="margin-bottom:.1rem">
+                {sectionLabel(section)}
+              </p>
+              <h2>{section.title}</h2>
+              <p>{section.description}</p>
+              <div class="row" style="margin-top:.35rem">
+                <span class="badge">{quiz} quiz</span>
+                <span class="badge">{levelRange(section.items)}</span>
+                {section.priority && (
+                  <span class="badge">{section.priority}</span>
+                )}
+              </div>
+              <div class="card-actions">
+                <a class="btn btn-primary" href={sectionPath(section.id)}>
+                  Study
+                </a>
+                <a class="btn" href={quizPath(section.id)}>
+                  Quiz me
+                </a>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section style="margin-top:3rem">
+    <h2>Modules</h2>
+    <p class="muted" style="margin-bottom:1rem">
+      Provider deep dives and the hands-on free tools lab.
+    </p>
+    <div class="card-grid">
+      {
+        modules.map((section) => {
+          const quiz = quizCount(section);
+          return (
+            <article class="card">
+              <p class="eyebrow" style="margin-bottom:.1rem">
+                {sectionLabel(section)}
+              </p>
+              <h2>{section.title}</h2>
+              <p>{section.description}</p>
+              <div class="row" style="margin-top:.35rem">
+                <span class="badge">{quiz} quiz</span>
+                <span class="badge">{levelRange(section.items)}</span>
+                {section.priority && (
+                  <span class="badge">{section.priority}</span>
+                )}
+              </div>
+              <div class="card-actions">
+                <a class="btn btn-primary" href={sectionPath(section.id)}>
+                  Study
+                </a>
+                {quiz > 0 ? (
+                  <a class="btn" href={quizPath(section.id)}>
+                    Quiz me
+                  </a>
+                ) : (
+                  <a class="btn" href={sectionPath(section.id)}>
+                    Open labs
+                  </a>
+                )}
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
 
   <section class="stack" style="margin-top:3rem;max-width:70ch">
     <h2>How it works</h2>
     <p class="muted">
       Every section is generated from <code>content/kb.json</code>. Study mode
       shows the question first so you can retrieve the answer before revealing
-      it. Quiz mode schedules cards with a simple spaced-repetition algorithm
-      and keeps your progress locally.
+      it, then shows the principle, the PM implication, further reading, and a
+      Gemini Notebook prompt. Quiz mode auto-grades multiple choice and
+      schedules cards with a simple spaced-repetition algorithm.
     </p>
     <p class="muted">
       Each section can also be exported as a Markdown bundle for a Gemini

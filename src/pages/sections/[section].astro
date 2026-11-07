@@ -1,6 +1,12 @@
 ---
 import Base from "../../layouts/Base.astro";
-import { sections, quizPath } from "../../lib/kb";
+import {
+  sections,
+  quizPath,
+  sectionLabel,
+  levelRange,
+} from "../../lib/kb";
+import type { Item, Resource } from "../../lib/kb";
 
 export function getStaticPaths() {
   return sections.map((section) => ({
@@ -10,8 +16,29 @@ export function getStaticPaths() {
 }
 
 const { section } = Astro.props;
-const difficulty = (value: number) =>
-  Array.from({ length: 5 }, (_, index) => index < value);
+const quizCount = section.items.filter((item: Item) => item.kind === "mcq").length;
+const labCount = section.items.length - quizCount;
+
+const resourceHref = (resource: Resource): string | null => {
+  if (resource.url) return resource.url;
+  if (resource.search) {
+    return `https://www.google.com/search?q=${encodeURIComponent(resource.search)}`;
+  }
+  return null;
+};
+
+const visibleTags = (item: Item): string[] => {
+  const levelSlug = item.levelName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-");
+  return item.tags.filter(
+    (tag) =>
+      !tag.startsWith("level-") &&
+      tag !== levelSlug &&
+      tag !== "lab" &&
+      tag !== "hands-on",
+  );
+};
 ---
 
 <Base
@@ -25,20 +52,30 @@ const difficulty = (value: number) =>
   </nav>
 
   <section class="page-head" style="margin-top:1rem">
-    <p class="eyebrow">Section</p>
+    <p class="eyebrow">{sectionLabel(section)}</p>
     <h1>{section.title}</h1>
     {section.description && <p class="lead">{section.description}</p>}
     <div class="row" style="margin-top:1.1rem">
-      <a class="btn btn-primary" href={quizPath(section.id)}>Start quiz</a>
-      <span class="badge">{section.items.length} questions</span>
+      {quizCount > 0 && (
+        <a class="btn btn-primary" href={quizPath(section.id)}>
+          Start quiz ({quizCount})
+        </a>
+      )}
+      <span class="badge">{section.items.length} items</span>
+      <span class="badge">{levelRange(section.items)}</span>
+      {labCount > 0 && <span class="badge">{labCount} hands-on lab{labCount === 1 ? "" : "s"}</span>}
+      {section.priority && <span class="badge">{section.priority}</span>}
       <a class="btn btn-ghost btn-sm" href="/search/">Search all sections</a>
     </div>
   </section>
 
   <div class="question-list">
     {
-      section.items.map((item, index) => (
-        <article class="question" id={item.id}>
+      section.items.map((item: Item, index: number) => (
+        <article
+          class:list={["question", item.kind === "lab" && "question-lab"]}
+          id={item.id}
+        >
           <div class="question-head">
             <span class="question-index" aria-hidden="true">
               {String(index + 1).padStart(2, "0")}
@@ -47,35 +84,100 @@ const difficulty = (value: number) =>
           </div>
 
           <div class="question-meta">
-            <span class="difficulty" aria-label={`Difficulty ${item.difficulty} of 5`}>
-              {difficulty(item.difficulty).map((on) => (
-                <span class:list={["dot", on && "on"]} />
-              ))}
+            <span class="badge">
+              {item.kind === "lab" ? "Hands-on lab" : item.levelName || `Level ${item.level}`}
             </span>
-            {item.tags.map((tag) => (
+            {visibleTags(item).map((tag: string) => (
               <span class="tag">{tag}</span>
             ))}
           </div>
 
           <details class="answer">
-            <summary>Show answer and reasoning</summary>
+            <summary>
+              {item.kind === "lab" ? "Show lab, principle and resources" : "Show answer and reasoning"}
+            </summary>
             <div class="answer-body">
-              <h4>Answer</h4>
-              <p>{item.answer}</p>
-              <h4>Reasoning</h4>
-              <p>{item.reasoning}</p>
-              {item.references.length > 0 && (
+              {item.kind === "lab" ? (
                 <>
-                  <h4>Further reading</h4>
-                  <ul class="refs">
-                    {item.references.map((reference) => (
-                      <li>
-                        <a href={reference.url} rel="noreferrer noopener" target="_blank">
-                          {reference.title}
-                        </a>
-                      </li>
-                    ))}
+                  {item.labInstructions && (
+                    <>
+                      <h4>Lab instructions</h4>
+                      <pre class="code-block">{item.labInstructions}</pre>
+                    </>
+                  )}
+                </>
+              ) : (
+                <>
+                  <h4>Answer</h4>
+                  <p>{item.answer}</p>
+
+                  {item.choices.length > 0 && (
+                    <>
+                      <h4>Why each option is right or wrong</h4>
+                      <ul class="choice-list">
+                        {item.choices.map((choice) => (
+                          <li
+                            class:list={["choice", choice.correct ? "correct" : "wrong"]}
+                          >
+                            <span class="choice-id">{choice.id}</span>
+                            <div>
+                              <p class="choice-text">{choice.text}</p>
+                              {choice.explanation && (
+                                <p class="choice-why">{choice.explanation}</p>
+                              )}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </>
+              )}
+
+              {item.principle && (
+                <>
+                  <h4>Principle</h4>
+                  <p>{item.principle}</p>
+                </>
+              )}
+
+              {item.pmImplication && (
+                <>
+                  <h4>PM implication</h4>
+                  <p>{item.pmImplication}</p>
+                </>
+              )}
+
+              {item.resources.length > 0 && (
+                <>
+                  <h4>Learn this concept</h4>
+                  <ul class="resource-list">
+                    {item.resources.map((resource) => {
+                      const href = resourceHref(resource);
+                      return (
+                        <li>
+                          {href ? (
+                            <a href={href} rel="noreferrer noopener" target="_blank">
+                              {resource.title}
+                            </a>
+                          ) : (
+                            <span>{resource.title}</span>
+                          )}
+                          {resource.type && (
+                            <span class="resource-type">{resource.type}</span>
+                          )}
+                          {resource.search && <span class="resource-type">search</span>}
+                        </li>
+                      );
+                    })}
                   </ul>
+                </>
+              )}
+
+              {item.geminiPrompt && (
+                <>
+                  <h4>Gemini Notebook prompt</h4>
+                  <pre class="code-block prompt-block">{item.geminiPrompt}</pre>
                 </>
               )}
             </div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Item } from "../lib/kb";
 
 type Rating = "again" | "good" | "easy";
@@ -80,11 +80,19 @@ function schedule(previous: CardState | undefined, rating: Rating): CardState {
     interval = 1;
   } else if (rating === "good") {
     reps += 1;
-    interval = reps === 1 ? 1 : reps === 2 ? 3 : Math.max(1, Math.round(Math.max(1, interval) * ease));
+    interval =
+      reps === 1
+        ? 1
+        : reps === 2
+          ? 3
+          : Math.max(1, Math.round(Math.max(1, interval) * ease));
   } else {
     reps += 1;
     ease = Math.min(3, ease + 0.15);
-    interval = reps === 1 ? 2 : Math.max(1, Math.round(Math.max(1, interval) * ease * 1.3));
+    interval =
+      reps === 1
+        ? 2
+        : Math.max(1, Math.round(Math.max(1, interval) * ease * 1.3));
   }
 
   return { interval, ease, reps, lapses, due: addDays(today, interval) };
@@ -95,10 +103,27 @@ function ratingLabel(rating: Rating, card: CardState | undefined): string {
   return `${rating === "again" ? "Again" : rating === "good" ? "Good" : "Easy"} · ${next.interval}d`;
 }
 
+function visibleTags(item: Item): string[] {
+  const levelSlug = item.levelName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  return item.tags.filter(
+    (tag) =>
+      !tag.startsWith("level-") &&
+      tag !== levelSlug &&
+      tag !== "lab" &&
+      tag !== "hands-on",
+  );
+}
+
 export default function Quiz({ sectionTitle, items }: QuizProps) {
+  const quizItems = useMemo(
+    () => items.filter((item) => item.kind === "mcq"),
+    [items],
+  );
+
   const [queue, setQueue] = useState<Item[] | null>(null);
   const [index, setIndex] = useState(0);
-  const [revealed, setRevealed] = useState(false);
+  const [answered, setAnswered] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
   const [store, setStore] = useState<Store>({});
   const [rated, setRated] = useState(0);
   const [done, setDone] = useState(false);
@@ -110,14 +135,14 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
     const due: Item[] = [];
     const later: Item[] = [];
 
-    for (const item of items) {
+    for (const item of quizItems) {
       const card = loaded[item.id];
       if (!card || card.due <= today) due.push(item);
       else later.push(item);
     }
 
     setQueue([...shuffle(due), ...shuffle(later)]);
-  }, [items]);
+  }, [quizItems]);
 
   const current = queue && index < queue.length ? queue[index] : null;
 
@@ -133,42 +158,62 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
 
       if (index + 1 >= queue.length) {
         setDone(true);
-        setRevealed(false);
+        setAnswered(false);
+        setSelected(null);
       } else {
         setIndex((value) => value + 1);
-        setRevealed(false);
+        setAnswered(false);
+        setSelected(null);
       }
     },
     [current, index, queue, store],
   );
 
+  function choose(choiceId: string) {
+    if (answered) return;
+    setSelected(choiceId);
+    setAnswered(true);
+  }
+
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (done || !current) return;
       const target = event.target as HTMLElement | null;
-      if (target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
+      if (
+        target &&
+        ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)
+      )
+        return;
 
-      if (!revealed && (event.code === "Space" || event.key === "Enter")) {
-        event.preventDefault();
-        setRevealed(true);
+      if (!answered) {
+        const letter = event.key.toUpperCase();
+        const choiceIndex = ["A", "B", "C", "D", "E"].indexOf(letter);
+        if (choiceIndex >= 0 && current.choices[choiceIndex]) {
+          event.preventDefault();
+          choose(current.choices[choiceIndex].id);
+          return;
+        }
+        if (event.code === "Space" || event.key === "Enter") {
+          event.preventDefault();
+          setAnswered(true);
+        }
         return;
       }
 
-      if (revealed) {
-        if (event.key === "1") rate("again");
-        if (event.key === "2") rate("good");
-        if (event.key === "3") rate("easy");
-      }
+      if (event.key === "1") rate("again");
+      if (event.key === "2") rate("good");
+      if (event.key === "3") rate("easy");
     }
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [current, done, rate, revealed]);
+  }, [answered, current, done, rate]);
 
   function restart() {
-    setQueue(shuffle(items));
+    setQueue(shuffle(quizItems));
     setIndex(0);
-    setRevealed(false);
+    setAnswered(false);
+    setSelected(null);
     setRated(0);
     setDone(false);
   }
@@ -187,6 +232,23 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
     restart();
   }
 
+  if (quizItems.length === 0) {
+    return (
+      <div className="quiz-card">
+        <h2>This section is hands-on.</h2>
+        <p className="muted">
+          It contains labs and exercises rather than multiple-choice questions.
+          Open the study page to work through them.
+        </p>
+        <div className="row">
+          <a className="btn btn-primary" href="/">
+            All sections
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   if (!queue) {
     return (
       <div className="quiz-topbar">
@@ -196,7 +258,9 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
   }
 
   if (done) {
-    const dueNow = Object.values(store).filter((card) => card.due <= isoDate()).length;
+    const dueNow = Object.values(store).filter(
+      (card) => card.due <= isoDate(),
+    ).length;
     const scheduled = Object.keys(store).length;
 
     return (
@@ -235,7 +299,11 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
             <a className="btn" href="/">
               All sections
             </a>
-            <button className="btn btn-ghost" type="button" onClick={resetProgress}>
+            <button
+              className="btn btn-ghost"
+              type="button"
+              onClick={resetProgress}
+            >
               Reset progress
             </button>
           </div>
@@ -255,6 +323,10 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
 
   const progress = Math.round((rated / queue.length) * 100);
   const card = store[current.id];
+  const selectedChoice = current.choices.find(
+    (choice) => choice.id === selected,
+  );
+  const isCorrect = Boolean(selectedChoice?.correct);
 
   return (
     <div>
@@ -278,48 +350,149 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
 
       <div className="quiz-card" aria-live="polite">
         <div className="row" style={{ gap: ".4rem" }}>
-          {current.tags.map((tag) => (
+          <span className="badge">{current.levelName || "Quiz"}</span>
+          {visibleTags(current).map((tag) => (
             <span className="tag" key={tag}>
               {tag}
             </span>
           ))}
-          <span className="badge">Difficulty {current.difficulty}</span>
         </div>
 
         <p className="quiz-question">{current.question}</p>
 
-        {!revealed ? (
-          <button
-            className="btn btn-primary"
-            type="button"
-            onClick={() => setRevealed(true)}
-          >
-            Show answer
-          </button>
+        {current.choices.length > 0 ? (
+          <ul className="quiz-choices">
+            {current.choices.map((choice) => {
+              const state = !answered
+                ? "idle"
+                : choice.correct
+                  ? "correct"
+                  : choice.id === selected
+                    ? "wrong"
+                    : "idle";
+              return (
+                <li key={choice.id}>
+                  <button
+                    type="button"
+                    className={`choice-button ${state}`}
+                    onClick={() => choose(choice.id)}
+                    disabled={answered}
+                    aria-pressed={selected === choice.id}
+                  >
+                    <span className="choice-id">{choice.id}</span>
+                    <span>{choice.text}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         ) : (
+          !answered && (
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={() => setAnswered(true)}
+            >
+              Show answer
+            </button>
+          )
+        )}
+
+        {answered && (
           <>
+            {current.choices.length > 0 && selectedChoice && (
+              <div
+                className={`result-banner ${isCorrect ? "correct" : "wrong"}`}
+                role="status"
+              >
+                {isCorrect ? "Correct." : `Not quite. The answer is ${current.choices.find((choice) => choice.correct)?.id}.`}
+              </div>
+            )}
+
             <div className="reveal-box">
-              <h4>Answer</h4>
-              <p>{current.answer}</p>
-              <h4>Reasoning</h4>
-              <p>{current.reasoning}</p>
-              {current.references.length > 0 && (
+              {current.choices.length > 0 ? (
                 <>
-                  <h4>Further reading</h4>
-                  <ul className="refs">
-                    {current.references.map((reference) => (
-                      <li key={reference.url}>
-                        <a
-                          href={reference.url}
-                          target="_blank"
-                          rel="noreferrer noopener"
-                        >
-                          {reference.title}
-                        </a>
+                  <h4>Why each option is right or wrong</h4>
+                  <ul className="choice-list">
+                    {current.choices.map((choice) => (
+                      <li
+                        key={choice.id}
+                        className={`choice ${choice.correct ? "correct" : "wrong"}`}
+                      >
+                        <span className="choice-id">{choice.id}</span>
+                        <div>
+                          <p className="choice-text">{choice.text}</p>
+                          {choice.explanation && (
+                            <p className="choice-why">{choice.explanation}</p>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
                 </>
+              ) : (
+                <>
+                  <h4>Answer</h4>
+                  <p>{current.answer}</p>
+                </>
+              )}
+
+              {current.principle && (
+                <>
+                  <h4>Principle</h4>
+                  <p>{current.principle}</p>
+                </>
+              )}
+
+              {current.pmImplication && (
+                <>
+                  <h4>PM implication</h4>
+                  <p>{current.pmImplication}</p>
+                </>
+              )}
+
+              {current.resources.length > 0 && (
+                <>
+                  <h4>Learn this concept</h4>
+                  <ul className="resource-list">
+                    {current.resources.map((resource) => {
+                      const href =
+                        resource.url ??
+                        (resource.search
+                          ? `https://www.google.com/search?q=${encodeURIComponent(resource.search)}`
+                          : null);
+                      return (
+                        <li key={`${resource.title}-${resource.type}`}>
+                          {href ? (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                            >
+                              {resource.title}
+                            </a>
+                          ) : (
+                            <span>{resource.title}</span>
+                          )}
+                          {resource.type && (
+                            <span className="resource-type">
+                              {resource.type}
+                            </span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </>
+              )}
+
+              {current.geminiPrompt && (
+                <details className="prompt-details">
+                  <summary>Gemini Notebook prompt</summary>
+                  <pre className="code-block prompt-block">
+                    {current.geminiPrompt}
+                  </pre>
+                </details>
               )}
             </div>
 
@@ -349,9 +522,18 @@ export default function Quiz({ sectionTitle, items }: QuizProps) {
 
             <p className="hint">
               Rate honestly: <kbd>1</kbd> again, <kbd>2</kbd> good,{" "}
-              <kbd>3</kbd> easy. <kbd>Space</kbd> reveals the answer.
+              <kbd>3</kbd> easy.
             </p>
           </>
+        )}
+
+        {!answered && current.choices.length > 0 && (
+          <p className="hint">
+            Pick an option with the mouse or <kbd>A</kbd>–<kbd>
+              {current.choices.at(-1)?.id}
+            </kbd>
+            . <kbd>Space</kbd> reveals the answer without answering.
+          </p>
         )}
       </div>
     </div>

@@ -1,7 +1,7 @@
 ---
 import Base from "../../layouts/Base.astro";
 import Quiz from "../../components/Quiz";
-import { sections, sectionPath } from "../../lib/kb";
+import { sections, sectionPath, quizItems } from "../../lib/kb";
 
 export function getStaticPaths() {
   return sections.map((section) => ({
@@ -11,9 +11,14 @@ export function getStaticPaths() {
 }
 
 const { section } = Astro.props;
+const questions = quizItems(section);
+const labCount = section.items.length - questions.length;
 ---
 
-<Base title={`Quiz: ${section.title}`} description={`Quiz yourself on ${section.title}`}>
+<Base
+  title={`Quiz: ${section.title}`}
+  description={`Quiz yourself on ${section.title}`}
+>
   <nav class="meta-row" aria-label="Breadcrumb">
     <a href="/">Sections</a>
     <span aria-hidden="true">/</span>
@@ -23,6 +28,20 @@ const { section } = Astro.props;
   </nav>
 
   <section class="quiz-shell" style="margin-top:1.25rem">
-    <Quiz client:load sectionId={section.id} sectionTitle={section.title} items={section.items} />
+    {
+      labCount > 0 && questions.length > 0 && (
+        <p class="empty-state" style="margin-bottom:1rem">
+          This section also has {labCount} hands-on lab
+          {labCount === 1 ? "" : "s"}. They are on the{" "}
+          <a href={sectionPath(section.id)}>study page</a>.
+        </p>
+      )
+    }
+    <Quiz
+      client:load
+      sectionId={section.id}
+      sectionTitle={section.title}
+      items={questions}
+    />
   </section>
 </Base>

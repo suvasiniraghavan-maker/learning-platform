@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "validate": "node scripts/validate.mjs",
+    "import": "node scripts/import-chat-export.mjs",
     "build": "astro build",
     "postbuild": "pagefind --site dist",
     "preview": "astro preview",
